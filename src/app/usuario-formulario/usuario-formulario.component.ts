@@ -6,6 +6,7 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import {MatButtonModule} from '@angular/material/button';
 import { Form, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { UsuarioService } from '../services/usuario.service';
 
 @Component({
   selector: 'curso-usuario-formulario',
@@ -18,14 +19,15 @@ import { CommonModule } from '@angular/common';
     MatButtonModule,
     ReactiveFormsModule],
   templateUrl: './usuario-formulario.component.html',
-  styleUrl: './usuario-formulario.component.scss'
+  styleUrl: './usuario-formulario.component.scss',
 })
 export class UsuarioFormularioComponent implements OnInit {
 
   protected form: FormGroup;
 
   constructor(
-    private _formBuilder: FormBuilder
+    private _formBuilder: FormBuilder,
+    private _service: UsuarioService
   ) {
     this.form = this._formBuilder.group({
       idusuario: new FormControl(null),
@@ -35,6 +37,15 @@ export class UsuarioFormularioComponent implements OnInit {
       correo: new FormControl('',[Validators.required,Validators.email]),
       estatus: new FormControl(1),
     });
+
+    // this._service.findAll().subscribe({
+    //   next: (usuario) => {
+    //     console.log(usuario);
+    //   }, error: (err) => {
+    //     console.error(err);
+    //   }
+    // })
+
   }
 
   ngOnInit(): void {
@@ -62,8 +73,13 @@ export class UsuarioFormularioComponent implements OnInit {
 
     } else {
 
-      // Toda la logica
-      console.log(this.form.value);
+      this._service.save(this.form.value).subscribe({
+        next: (usuario) => {
+          console.log('Usuario guardado:',usuario);
+        }
+      })
+
+
 
     }
 
