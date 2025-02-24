@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
@@ -6,7 +6,8 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import {MatButtonModule} from '@angular/material/button';
 import { Form, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { UsuarioService } from '../services/usuario.service';
+import { UsuarioService } from '../../services/usuario.service';
+import { Usuario } from '../../interface/usuario.interface';
 
 @Component({
   selector: 'curso-usuario-formulario',
@@ -23,20 +24,16 @@ import { UsuarioService } from '../services/usuario.service';
 })
 export class UsuarioFormularioComponent implements OnInit {
 
-  protected form: FormGroup;
+  protected form!: FormGroup;
+
+  @Output() usuario = new EventEmitter<Usuario>();
 
   constructor(
     private _formBuilder: FormBuilder,
     private _service: UsuarioService
   ) {
-    this.form = this._formBuilder.group({
-      idusuario: new FormControl(null),
-      nombre: new FormControl('',Validators.required),
-      paterno: new FormControl({ value: '', disabled: false },Validators.required),
-      materno: new FormControl(''),
-      correo: new FormControl('',[Validators.required,Validators.email]),
-      estatus: new FormControl(1),
-    });
+
+    this.initForm();
 
     // this._service.findAll().subscribe({
     //   next: (usuario) => {
@@ -73,9 +70,11 @@ export class UsuarioFormularioComponent implements OnInit {
 
     } else {
 
+
       this._service.save(this.form.value).subscribe({
         next: (usuario) => {
-          console.log('Usuario guardado:',usuario);
+          this.initForm(); // this.form.reset();
+          this.usuario.emit(usuario);
         }
       })
 
@@ -84,6 +83,17 @@ export class UsuarioFormularioComponent implements OnInit {
     }
 
 
+  }
+
+  private initForm(): void {
+    this.form = this._formBuilder.group({
+      idusuario: new FormControl(null),
+      nombre: new FormControl('',Validators.required),
+      paterno: new FormControl({ value: '', disabled: false },Validators.required),
+      materno: new FormControl(''),
+      correo: new FormControl('',[Validators.required,Validators.email]),
+      estatus: new FormControl(1),
+    });
   }
 
 
